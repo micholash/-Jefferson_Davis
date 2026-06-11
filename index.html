@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <?!= include('Style'); ?>
+</head>
+<body>
+
+  <!-- ===================== 로그인 화면 ===================== -->
+  <div id="loginScreen" class="screen">
+    <div class="login-card">
+      <h1>🗺️ 지도 위의 인문학</h1>
+      <p class="subtitle">세계 곳곳의 숨겨진 역사 이야기를 들어보세요</p>
+
+      <input type="email" id="emailInput" placeholder="이메일" />
+      <input type="password" id="passwordInput" placeholder="비밀번호" />
+
+      <div class="login-buttons">
+        <button id="loginBtn" class="btn-primary">로그인</button>
+        <button id="signupBtn" class="btn-secondary">회원가입</button>
+      </div>
+
+      <p id="loginError" class="error-text"></p>
+    </div>
+  </div>
+
+  <!-- ===================== 메인 지도 화면 ===================== -->
+  <div id="mainScreen" class="screen hidden">
+    <header class="topbar">
+      <h2>🗺️ 지도 위의 인문학</h2>
+      <div class="user-area">
+        <span id="userEmail"></span>
+        <button id="myPageBtn" class="btn-small">나의 기록</button>
+        <button id="logoutBtn" class="btn-small">로그아웃</button>
+      </div>
+    </header>
+
+    <div class="map-wrapper">
+      <svg id="worldMap" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+        <!-- 배경 -->
+        <rect width="1000" height="500" fill="#cfe8f3"/>
+        <!-- 대륙 형태는 단순화된 사각/원형 블록으로 지역 마커 표시 -->
+        <!-- 지역 마커들 -->
+        <g class="region-marker" data-region="이집트 카이로">
+          <circle cx="540" cy="230" r="14"/>
+          <text x="540" y="210">카이로</text>
+        </g>
+        <g class="region-marker" data-region="그리스 아테네">
+          <circle cx="530" cy="170" r="14"/>
+          <text x="530" y="150">아테네</text>
+        </g>
+        <g class="region-marker" data-region="이탈리아 로마">
+          <circle cx="500" cy="155" r="14"/>
+          <text x="500" y="135">로마</text>
+        </g>
+        <g class="region-marker" data-region="대한민국 경주">
+          <circle cx="850" cy="180" r="14"/>
+          <text x="850" y="160">경주</text>
+        </g>
+        <g class="region-marker" data-region="중국 시안">
+          <circle cx="800" cy="190" r="14"/>
+          <text x="800" y="210">시안</text>
+        </g>
+        <g class="region-marker" data-region="인도 델리">
+          <circle cx="730" cy="240" r="14"/>
+          <text x="730" y="260">델리</text>
+        </g>
+        <g class="region-marker" data-region="프랑스 파리">
+          <circle cx="480" cy="135" r="14"/>
+          <text x="480" y="115">파리</text>
+        </g>
+        <g class="region-marker" data-region="영국 런던">
+          <circle cx="465" cy="120" r="14"/>
+          <text x="465" y="100">런던</text>
+        </g>
+        <g class="region-marker" data-region="멕시코 테오티우아칸">
+          <circle cx="180" cy="230" r="14"/>
+          <text x="180" y="250">멕시코</text>
+        </g>
+        <g class="region-marker" data-region="페루 마추픽추">
+          <circle cx="270" cy="350" r="14"/>
+          <text x="270" y="370">페루</text>
+        </g>
+        <g class="region-marker" data-region="튀르키예 이스탄불">
+          <circle cx="565" cy="155" r="14"/>
+          <text x="565" y="135">이스탄불</text>
+        </g>
+        <g class="region-marker" data-region="이라크 바그다드">
+          <circle cx="600" cy="200" r="14"/>
+          <text x="600" y="220">바그다드</text>
+        </g>
+      </svg>
+    </div>
+
+    <p class="hint">📍 지도 위의 마커를 클릭해 그 지역의 역사 이야기를 들어보세요!</p>
+  </div>
+
+  <!-- ===================== 일화 모달 ===================== -->
+  <div id="storyModal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="storyRegionName"></h3>
+      <div id="storyLoading" class="hidden">
+        <div class="spinner"></div>
+        <p>AI가 이야기를 준비하고 있어요...</p>
+      </div>
+      <p id="storyText"></p>
+      <div class="modal-buttons">
+        <button id="playTtsBtn" class="btn-primary hidden">🔊 들려주기</button>
+        <button id="stopTtsBtn" class="btn-secondary hidden">⏹ 멈추기</button>
+        <button id="closeModalBtn" class="btn-small">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 마이페이지 ===================== -->
+  <div id="myPageScreen" class="screen hidden">
+    <header class="topbar">
+      <h2>📖 나의 역사 탐험 기록</h2>
+      <button id="backToMapBtn" class="btn-small">지도로 돌아가기</button>
+    </header>
+    <p id="progressText" class="hint"></p>
+    <div id="visitedList" class="visited-list"></div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <?!= include('Script'); ?>
+</body>
+</html>

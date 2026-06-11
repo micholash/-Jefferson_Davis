@@ -1,0 +1,253 @@
+<style>
+  * {
+    box-sizing: border-box;
+    font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  }
+
+  body {
+    margin: 0;
+    background: #f5f7fa;
+    color: #2c3e50;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* ===================== 로그인 화면 ===================== */
+  #loginScreen {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #6dd5fa, #2980b9);
+  }
+
+  .login-card {
+    background: #fff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    width: 320px;
+    text-align: center;
+  }
+
+  .login-card h1 {
+    margin: 0 0 8px;
+    font-size: 24px;
+  }
+
+  .subtitle {
+    color: #7f8c8d;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+
+  .login-card input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .login-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .btn-primary, .btn-secondary, .btn-small {
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: opacity 0.2s;
+  }
+
+  .btn-primary {
+    flex: 1;
+    background: #2980b9;
+    color: #fff;
+  }
+
+  .btn-secondary {
+    flex: 1;
+    background: #ecf0f1;
+    color: #2c3e50;
+  }
+
+  .btn-small {
+    background: #ecf0f1;
+    color: #2c3e50;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .btn-primary:hover, .btn-secondary:hover, .btn-small:hover {
+    opacity: 0.85;
+  }
+
+  .error-text {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 12px;
+    min-height: 16px;
+  }
+
+  /* ===================== 메인 화면 ===================== */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2c3e50;
+    color: #fff;
+    padding: 12px 20px;
+  }
+
+  .topbar h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+
+  .user-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .map-wrapper {
+    padding: 16px;
+  }
+
+  #worldMap {
+    width: 100%;
+    height: auto;
+    background: #aedff7;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+  }
+
+  .region-marker circle {
+    fill: #e74c3c;
+    stroke: #fff;
+    stroke-width: 2;
+    cursor: pointer;
+    transition: r 0.15s, fill 0.15s;
+  }
+
+  .region-marker:hover circle {
+    r: 18;
+    fill: #c0392b;
+  }
+
+  .region-marker.visited circle {
+    fill: #27ae60;
+  }
+
+  .region-marker text {
+    font-size: 13px;
+    fill: #2c3e50;
+    text-anchor: middle;
+    pointer-events: none;
+    font-weight: 600;
+  }
+
+  .hint {
+    text-align: center;
+    color: #7f8c8d;
+    font-size: 13px;
+    margin: 0 0 16px;
+  }
+
+  /* ===================== 모달 ===================== */
+  .modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal-content {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+  }
+
+  .modal-content h3 {
+    margin-top: 0;
+    color: #2980b9;
+  }
+
+  #storyText {
+    line-height: 1.6;
+    font-size: 15px;
+    text-align: left;
+    margin: 16px 0;
+  }
+
+  .modal-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    margin: 16px auto;
+    border: 4px solid #ecf0f1;
+    border-top: 4px solid #2980b9;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ===================== 마이페이지 ===================== */
+  .visited-list {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .visited-item {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    cursor: pointer;
+  }
+
+  .visited-item h4 {
+    margin: 0 0 6px;
+    color: #2980b9;
+  }
+
+  .visited-item p {
+    margin: 0;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.5;
+  }
+
+  .visited-item .date {
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 6px;
+  }
+</style>

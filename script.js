@@ -323,3 +323,4 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpUjFGz3mzoctI
       listEl.innerHTML = '<p class="hint">아직 탐험한 지역이 없어요. 지도에서 국가를 클릭해보세요!</p>';
     }
   }
+

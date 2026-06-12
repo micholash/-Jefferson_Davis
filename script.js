@@ -2,7 +2,7 @@
 // Apps Script 웹앱 URL - 배포 후 받은 URL로 교체하세요
 // (예: https://script.google.com/macros/s/AKfycb.../exec)
 // =====================================================
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNPc87i1EtQGXzPMimFa1elNb2D5yT_FYd3uSK_wwe3G0qFq0E9Y9QjpeVze3-bQqJmw/exec";
+const APPS_SCRIPT_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL";
 
 // =====================================================
 // Firebase 설정 - 본인의 Firebase 프로젝트 설정으로 교체하세요
@@ -17,9 +17,15 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNPc87i1EtQGXz
     appId: "1:981476340214:web:2a641f7f79c27ad4b2d7d7",
     measurementId: "G-YJ3GKC67YM"
   };
+
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
+
+  // 디버깅용: firebaseConfig가 설정되지 않았으면 경고
+  if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+    console.warn('⚠️ firebaseConfig가 아직 설정되지 않았습니다. Firebase 콘솔의 설정값으로 교체하세요.');
+  }
 
   let currentUser = null;
   let currentUtterance = null;
@@ -31,20 +37,10 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNPc87i1EtQGXz
   const myPageScreen = document.getElementById('myPageScreen');
   const storyModal = document.getElementById('storyModal');
 
-  // ===================== 로그인 / 회원가입 =====================
-  document.getElementById('loginBtn').addEventListener('click', () => {
-    const email = document.getElementById('emailInput').value;
-    const password = document.getElementById('passwordInput').value;
-
-    auth.signInWithEmailAndPassword(email, password)
-      .catch(err => showError(err.message));
-  });
-
-  document.getElementById('signupBtn').addEventListener('click', () => {
-    const email = document.getElementById('emailInput').value;
-    const password = document.getElementById('passwordInput').value;
-
-    auth.createUserWithEmailAndPassword(email, password)
+  // ===================== Google 로그인 =====================
+  document.getElementById('googleLoginBtn').addEventListener('click', () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
       .catch(err => showError(err.message));
   });
 
@@ -75,24 +71,48 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNPc87i1EtQGXz
     }
   });
 
-  // ===================== 지역 데이터 =====================
-  const REGIONS = [
-    { name: "이집트 카이로", lat: 30.04, lng: 31.24 },
-    { name: "그리스 아테네", lat: 37.98, lng: 23.73 },
-    { name: "이탈리아 로마", lat: 41.90, lng: 12.50 },
-    { name: "대한민국 경주", lat: 35.84, lng: 129.21 },
-    { name: "중국 시안", lat: 34.34, lng: 108.94 },
-    { name: "인도 델리", lat: 28.61, lng: 77.21 },
-    { name: "프랑스 파리", lat: 48.86, lng: 2.35 },
-    { name: "영국 런던", lat: 51.51, lng: -0.13 },
-    { name: "멕시코 테오티우아칸", lat: 19.69, lng: -98.84 },
-    { name: "페루 마추픽추", lat: -13.16, lng: -72.55 },
-    { name: "튀르키예 이스탄불", lat: 41.01, lng: 28.98 },
-    { name: "이라크 바그다드", lat: 33.31, lng: 44.36 }
-  ];
+  // ===================== 국가명 영→한 매핑 =====================
+  // GeoJSON의 "name" 속성(영문)을 한국어 지역명으로 변환
+  // 매핑에 없는 국가를 클릭하면 영문명을 그대로 사용
+  const COUNTRY_NAME_KO = {
+    "Egypt": "이집트",
+    "Greece": "그리스",
+    "Italy": "이탈리아",
+    "South Korea": "대한민국",
+    "Republic of Korea": "대한민국",
+    "China": "중국",
+    "India": "인도",
+    "France": "프랑스",
+    "United Kingdom": "영국",
+    "Mexico": "멕시코",
+    "Peru": "페루",
+    "Turkey": "튀르키예",
+    "Iraq": "이라크",
+    "Japan": "일본",
+    "Germany": "독일",
+    "Spain": "스페인",
+    "Russia": "러시아",
+    "United States of America": "미국",
+    "Brazil": "브라질",
+    "Iran": "이란",
+    "Israel": "이스라엘",
+    "Vietnam": "베트남",
+    "Mongolia": "몽골",
+    "Indonesia": "인도네시아",
+    "Cambodia": "캄보디아",
+    "Ethiopia": "에티오피아"
+  };
+
+  function toKoreanName(geoName) {
+    return COUNTRY_NAME_KO[geoName] || geoName;
+  }
+
+  // GeoJSON 국가 경계 데이터 (Natural Earth 기반 공개 데이터)
+  const GEOJSON_URL = "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json";
 
   let leafletMap = null;
-  const regionMarkers = {}; // { regionName: L.marker }
+  let geoLayer = null;
+  const countryLayers = {}; // { 한국어이름: layer }
 
   function initMap() {
     if (leafletMap) return; // 이미 초기화됨
@@ -104,14 +124,29 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNPc87i1EtQGXz
       maxZoom: 18
     }).addTo(leafletMap);
 
-    REGIONS.forEach(region => {
-      const marker = L.marker([region.lat, region.lng]).addTo(leafletMap);
-      marker.bindPopup(
-        `<div class="popup-region-name">📍 ${region.name}</div>` +
-        `<button class="popup-btn" onclick="window.handleRegionClick('${region.name}')">이야기 듣기</button>`
-      );
-      regionMarkers[region.name] = marker;
-    });
+    fetch(GEOJSON_URL)
+      .then(res => res.json())
+      .then(geojson => {
+        geoLayer = L.geoJSON(geojson, {
+          className: 'country-layer',
+          onEachFeature: (feature, layer) => {
+            const koName = toKoreanName(feature.properties.name);
+            countryLayers[koName] = layer;
+
+            layer.on('click', () => {
+              openStoryModal(koName);
+            });
+
+            // 방문한 국가면 즉시 표시
+            if (visitedRegions[koName]) {
+              layer.setStyle({ fillColor: '#27ae60', fillOpacity: 0.35, color: '#27ae60' });
+            }
+          }
+        }).addTo(leafletMap);
+      })
+      .catch(err => {
+        console.error('지도 데이터를 불러오지 못했습니다:', err);
+      });
   }
 
   // 지도 크기 재계산 (화면 전환 시 타일이 깨지는 것 방지)
@@ -121,23 +156,14 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNPc87i1EtQGXz
     }
   }
 
-  // 팝업 버튼에서 호출 (전역 함수로 등록)
-  window.handleRegionClick = function (regionName) {
-    if (regionMarkers[regionName]) {
-      regionMarkers[regionName].closePopup();
-    }
-    openStoryModal(regionName, regionMarkers[regionName]);
-  };
-
   function markVisited(regionName) {
-    const marker = regionMarkers[regionName];
-    if (marker) {
-      const icon = marker.getElement();
-      if (icon) icon.classList.add('visited-pin');
+    const layer = countryLayers[regionName];
+    if (layer) {
+      layer.setStyle({ fillColor: '#27ae60', fillOpacity: 0.35, color: '#27ae60' });
     }
   }
 
-  function openStoryModal(regionName, markerObj) {
+  function openStoryModal(regionName) {
     storyModal.classList.remove('hidden');
     document.getElementById('storyRegionName').innerText = '📍 ' + regionName;
     document.getElementById('storyText').innerText = '';
@@ -206,7 +232,10 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNPc87i1EtQGXz
 
   // ===================== Firestore: 방문 기록 저장/불러오기 =====================
   function saveVisitedRegion(regionName, story) {
-    if (!currentUser) return;
+    if (!currentUser) {
+      console.error('저장 실패: 로그인된 사용자가 없습니다.');
+      return;
+    }
 
     const data = {
       story: story,
@@ -218,8 +247,11 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNPc87i1EtQGXz
       .set(data)
       .then(() => {
         visitedRegions[regionName] = { story: story, visitedAt: new Date() };
+        console.log('✅ Firestore 저장 성공:', regionName);
       })
-      .catch(err => console.error('저장 오류:', err));
+      .catch(err => {
+        console.error('❌ Firestore 저장 오류:', err.code, err.message);
+      });
   }
 
   function loadVisitedRegions() {
@@ -233,8 +265,11 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNPc87i1EtQGXz
           visitedRegions[doc.id] = doc.data();
           markVisited(doc.id);
         });
+        console.log(`✅ 방문 기록 ${snapshot.size}건 불러옴`);
       })
-      .catch(err => console.error('불러오기 오류:', err));
+      .catch(err => {
+        console.error('❌ Firestore 불러오기 오류:', err.code, err.message);
+      });
   }
 
   // ===================== 마이페이지 =====================
@@ -251,10 +286,10 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNPc87i1EtQGXz
   });
 
   function renderMyPage() {
-    const totalRegions = REGIONS.length;
+    const totalRegions = Object.keys(countryLayers).length;
     const visitedCount = Object.keys(visitedRegions).length;
     document.getElementById('progressText').innerText =
-      `🌍 전체 ${totalRegions}개 지역 중 ${visitedCount}개 탐험 완료!`;
+      `🌍 전체 ${totalRegions}개 국가 중 ${visitedCount}개 탐험 완료!`;
 
     const listEl = document.getElementById('visitedList');
     listEl.innerHTML = '';
@@ -278,13 +313,13 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNPc87i1EtQGXz
         myPageScreen.classList.add('hidden');
         mainScreen.classList.remove('hidden');
         refreshMap();
-        openStoryModal(regionName, regionMarkers[regionName]);
+        openStoryModal(regionName);
       });
 
       listEl.appendChild(div);
     });
 
     if (visitedCount === 0) {
-      listEl.innerHTML = '<p class="hint">아직 탐험한 지역이 없어요. 지도에서 마커를 눌러보세요!</p>';
+      listEl.innerHTML = '<p class="hint">아직 탐험한 지역이 없어요. 지도에서 국가를 클릭해보세요!</p>';
     }
   }

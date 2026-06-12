@@ -322,21 +322,7 @@ function saveVisitedRegion(regionName, story) {
       console.error('❌ Firestore 저장 오류 코드:', err.code);
       console.error('❌ Firestore 저장 오류 메시지:', err.message);
       if (err.message && (err.message.includes('has not been used') || err.code === 'permission-denied')) {
-        alert(
-          'Firestore 저장 실패
-
-' +
-          'Firebase 콘솔에서 Firestore Database를 활성화해야 합니다.
-
-' +
-          '① https://console.firebase.google.com 접속
-' +
-          '② 프로젝트 선택 → Firestore Database 클릭
-' +
-          '③ 데이터베이스 만들기 버튼 클릭 후 활성화
-' +
-          '④ 보안 규칙: allow read, write: if true; 로 설정'
-        );
+        console.error('Firestore 미활성화: Firebase 콘솔에서 Firestore Database를 활성화하세요. https://console.firebase.google.com');
       }
     });
 }

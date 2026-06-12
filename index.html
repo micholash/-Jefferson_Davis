@@ -14,12 +14,10 @@
     <div class="login-card">
       <h1>🗺️ 지도 위의 인문학</h1>
       <p class="subtitle">세계 곳곳의 숨겨진 역사 이야기를 들어보세요</p>
-
       <button id="googleLoginBtn" class="btn-google">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
         Google 계정으로 로그인
       </button>
-
       <p id="loginError" class="error-text"></p>
     </div>
   </div>
@@ -34,11 +32,9 @@
         <button id="logoutBtn" class="btn-small">로그아웃</button>
       </div>
     </header>
-
     <div class="map-wrapper">
       <div id="leafletMap"></div>
     </div>
-
     <p class="hint">📍 지도 위의 지역(주/도)을 클릭해 그 지역의 역사 이야기를 들어보세요!</p>
   </div>
 
@@ -69,14 +65,15 @@
     <div id="visitedList" class="visited-list"></div>
   </div>
 
-  <!-- Leaflet -->
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK (compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
+  <!-- 앱 스크립트 -->
   <script src="script.js"></script>
 </body>
 </html>

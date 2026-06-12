@@ -113,7 +113,8 @@ function buildRegionLabel(feature) {
 }
 
 // ===================== 지도 초기화 =====================
-const GEOJSON_URL = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_1_states_provinces.geojson";
+// 전 세계 모든 국가의 주/도 행정구역을 포함하는 대용량 고정밀 데이터셋입니다.
+const GEOJSON_URL = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_1_states_provinces.geojson";
 
 let leafletMap = null;
 let geoLayer = null;

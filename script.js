@@ -2,7 +2,7 @@
 // Apps Script 웹앱 URL - 배포 후 받은 URL로 교체하세요
 // (예: https://script.google.com/macros/s/AKfycb.../exec)
 // =====================================================
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzdXC9iXXVNCbH3C71ua22UqLPQ71VnBeWMe-NaxAIeZxN_Ywr02tXTZpQ7aTpnmVY3Wg/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzajduh6DsLFs5OVE6yWuuu93f3F3eFVqUnlwWtw1J2BY4jRnPN8Fq2BIpsCNJVCcj56A/exec";
 
 // =====================================================
 // Firebase 설정 - 본인의 Firebase 프로젝트 설정으로 교체하세요
@@ -71,30 +71,31 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzdXC9iXXVNCbH3
     }
   });
 
-  // ===================== 국가명 영→한 매핑 =====================
-  // GeoJSON의 "name" 속성(영문)을 한국어 지역명으로 변환
-  // 매핑에 없는 국가를 클릭하면 영문명을 그대로 사용
+  // ===================== 지역명 영→한 매핑 =====================
+  // GeoJSON feature의 표시 이름(영문)을 한국어로 변환할 때 참고
+  // 매핑에 없으면 "국가명 - 주/도 이름" 형태로 영문 그대로 사용
   const COUNTRY_NAME_KO = {
-    "Egypt": "이집트",
-    "Greece": "그리스",
-    "Italy": "이탈리아",
     "South Korea": "대한민국",
     "Republic of Korea": "대한민국",
     "China": "중국",
-    "India": "인도",
-    "France": "프랑스",
-    "United Kingdom": "영국",
-    "Mexico": "멕시코",
-    "Peru": "페루",
-    "Turkey": "튀르키예",
-    "Iraq": "이라크",
     "Japan": "일본",
-    "Germany": "독일",
-    "Spain": "스페인",
-    "Russia": "러시아",
     "United States of America": "미국",
+    "United States": "미국",
+    "Mexico": "멕시코",
     "Brazil": "브라질",
+    "Peru": "페루",
+    "France": "프랑스",
+    "Germany": "독일",
+    "Italy": "이탈리아",
+    "Spain": "스페인",
+    "United Kingdom": "영국",
+    "Greece": "그리스",
+    "Turkey": "튀르키예",
+    "Russia": "러시아",
+    "India": "인도",
     "Iran": "이란",
+    "Iraq": "이라크",
+    "Egypt": "이집트",
     "Israel": "이스라엘",
     "Vietnam": "베트남",
     "Mongolia": "몽골",
@@ -103,25 +104,39 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzdXC9iXXVNCbH3
     "Ethiopia": "에티오피아"
   };
 
-  function toKoreanName(geoName) {
-    return COUNTRY_NAME_KO[geoName] || geoName;
+  function buildRegionLabel(feature) {
+    const props = feature.properties;
+    const provinceName = props.name || props.gn_name || props.woe_name || '알수없음';
+    const countryNameEn = props.admin || props.geonunit || '';
+    const countryNameKo = COUNTRY_NAME_KO[countryNameEn] || countryNameEn;
+
+    if (countryNameKo) {
+      return `${countryNameKo} ${provinceName}`;
+    }
+    return provinceName;
   }
 
-  // GeoJSON 국가 경계 데이터 (Natural Earth 기반 공개 데이터)
-  const GEOJSON_URL = "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json";
+  // GeoJSON 주/도(Admin-1) 경계 데이터 (Natural Earth 1:50m, 공개 데이터)
+  const GEOJSON_URL = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_1_states_provinces.geojson";
 
   let leafletMap = null;
   let geoLayer = null;
-  const countryLayers = {}; // { 한국어이름: layer }
+  const countryLayers = {}; // { 지역레이블: layer }
 
   function initMap() {
     if (leafletMap) return; // 이미 초기화됨
 
-    leafletMap = L.map('leafletMap').setView([20, 30], 2);
+    leafletMap = L.map('leafletMap', {
+      worldCopyJump: false,
+      maxBounds: [[-90, -180], [90, 180]],
+      maxBoundsViscosity: 1.0,
+      minZoom: 2
+    }).setView([20, 30], 2);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 18
+      maxZoom: 18,
+      noWrap: true
     }).addTo(leafletMap);
 
     fetch(GEOJSON_URL)
@@ -130,15 +145,15 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzdXC9iXXVNCbH3
         geoLayer = L.geoJSON(geojson, {
           className: 'country-layer',
           onEachFeature: (feature, layer) => {
-            const koName = toKoreanName(feature.properties.name);
-            countryLayers[koName] = layer;
+            const label = buildRegionLabel(feature);
+            countryLayers[label] = layer;
 
             layer.on('click', () => {
-              openStoryModal(koName);
+              openStoryModal(label);
             });
 
-            // 방문한 국가면 즉시 표시
-            if (visitedRegions[koName]) {
+            // 방문한 지역이면 즉시 표시
+            if (visitedRegions[label]) {
               layer.setStyle({ fillColor: '#27ae60', fillOpacity: 0.35, color: '#27ae60' });
             }
           }
@@ -289,7 +304,7 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzdXC9iXXVNCbH3
     const totalRegions = Object.keys(countryLayers).length;
     const visitedCount = Object.keys(visitedRegions).length;
     document.getElementById('progressText').innerText =
-      `🌍 전체 ${totalRegions}개 국가 중 ${visitedCount}개 탐험 완료!`;
+      `🌍 전체 ${totalRegions}개 지역 중 ${visitedCount}개 탐험 완료!`;
 
     const listEl = document.getElementById('visitedList');
     listEl.innerHTML = '';
@@ -323,4 +338,3 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzdXC9iXXVNCbH3
       listEl.innerHTML = '<p class="hint">아직 탐험한 지역이 없어요. 지도에서 국가를 클릭해보세요!</p>';
     }
   }
-

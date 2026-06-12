@@ -1,5 +1,4 @@
-<style>
-  * {
+* {
     box-sizing: border-box;
     font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   }
@@ -279,4 +278,3 @@
     color: #aaa;
     margin-top: 6px;
   }
-</style>

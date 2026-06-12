@@ -20,7 +20,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db = firebase.firestore();
+const db = firebase.database();
 
 let currentUser = null;
 let currentUtterance = null;
@@ -33,17 +33,15 @@ const myPageScreen  = document.getElementById('myPageScreen');
 const storyModal    = document.getElementById('storyModal');
 
 // =====================================================
-// Firestore 문서 ID 안전화
-// Firestore 문서 ID에는 슬래시(/)가 불가, 공백 등 특수문자도 문제 발생
-// 원본 지역명 → 안전한 키로 변환
+// Realtime Database 키 안전화
+// RTDB 경로에는 . # $ [ ] / 사용 불가
 // =====================================================
 function sanitizeDocId(regionName) {
-  // 공백 → '_', 슬래시 → '-', 그 외 특수문자 → 제거
   return regionName
     .replace(/\//g, '-')
     .replace(/\s+/g, '_')
     .replace(/[.#$\[\]]/g, '')
-    .substring(0, 200); // Firestore 문서 ID 최대 길이 제한
+    .substring(0, 200);
 }
 
 // ===================== Google 로그인 =====================
@@ -301,53 +299,44 @@ function saveVisitedRegion(regionName, story) {
   }
 
   const key = sanitizeDocId(regionName);
-  console.log('💾 Firestore 저장 시도:', regionName, '→ key:', key, '/ uid:', currentUser.uid);
+  console.log('💾 RTDB 저장 시도:', regionName, '→ key:', key);
 
   const data = {
     regionName: regionName,
     story: story,
-    visitedAt: firebase.firestore.FieldValue.serverTimestamp()
+    visitedAt: new Date().toISOString()
   };
 
-  db.collection('users')
-    .doc(currentUser.uid)
-    .collection('visited_regions')
-    .doc(key)
+  db.ref('users/' + currentUser.uid + '/visited_regions/' + key)
     .set(data)
     .then(() => {
-      visitedRegions[key] = { regionName, story, visitedAt: new Date() };
-      console.log('✅ Firestore 저장 성공:', regionName);
+      visitedRegions[key] = data;
+      console.log('✅ RTDB 저장 성공:', regionName);
     })
     .catch(err => {
-      console.error('❌ Firestore 저장 오류 코드:', err.code);
-      console.error('❌ Firestore 저장 오류 메시지:', err.message);
-      if (err.message && (err.message.includes('has not been used') || err.code === 'permission-denied')) {
-        console.error('Firestore 미활성화: Firebase 콘솔에서 Firestore Database를 활성화하세요. https://console.firebase.google.com');
-      }
+      console.error('❌ RTDB 저장 오류:', err.code, err.message);
     });
 }
 
 function loadVisitedRegions() {
   if (!currentUser) return;
 
-  db.collection('users')
-    .doc(currentUser.uid)
-    .collection('visited_regions')
-    .get()
+  db.ref('users/' + currentUser.uid + '/visited_regions')
+    .once('value')
     .then(snapshot => {
       visitedRegions = {};
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        visitedRegions[doc.id] = data;
-
-        // data.regionName(원본)이 있으면 그걸로, 없으면 doc.id를 복원해서 사용
-        const displayName = data.regionName || doc.id.replace(/_/g, ' ');
-        markVisited(displayName);
-      });
-      console.log(`✅ 방문 기록 ${snapshot.size}건 불러옴`);
+      const data = snapshot.val();
+      if (data) {
+        Object.entries(data).forEach(([key, item]) => {
+          visitedRegions[key] = item;
+          const displayName = item.regionName || key.replace(/_/g, ' ');
+          markVisited(displayName);
+        });
+      }
+      console.log('✅ RTDB 방문 기록', Object.keys(visitedRegions).length + '건 불러옴');
     })
     .catch(err => {
-      console.error('❌ Firestore 불러오기 오류:', err.code, err.message);
+      console.error('❌ RTDB 불러오기 오류:', err.code, err.message);
     });
 }
 

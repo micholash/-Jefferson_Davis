@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <base target="_top">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>지도 위의 인문학</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="style.css">
+  <?!= include('Style'); ?>
 </head>
 <body>
 
@@ -15,13 +14,10 @@
       <h1>🗺️ 지도 위의 인문학</h1>
       <p class="subtitle">세계 곳곳의 숨겨진 역사 이야기를 들어보세요</p>
 
-      <input type="email" id="emailInput" placeholder="이메일" />
-      <input type="password" id="passwordInput" placeholder="비밀번호" />
-
-      <div class="login-buttons">
-        <button id="loginBtn" class="btn-primary">로그인</button>
-        <button id="signupBtn" class="btn-secondary">회원가입</button>
-      </div>
+      <button id="googleLoginBtn" class="btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+        Google 계정으로 로그인
+      </button>
 
       <p id="loginError" class="error-text"></p>
     </div>
@@ -80,6 +76,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-  <script src="script.js"></script>
+  <?!= include('Script'); ?>
 </body>
 </html>

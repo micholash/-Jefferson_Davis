@@ -206,9 +206,9 @@ body {
   border-radius: 16px;
   padding: 28px;
   width: 90%;
-  max-width: 480px;
+  max-width: 520px;
   text-align: center;
-  max-height: 80vh;
+  max-height: 85vh;
   overflow-y: auto;
 }
 
@@ -218,11 +218,13 @@ body {
 }
 
 #storyText {
-  line-height: 1.8;
+  line-height: 1.9;
   font-size: 15px;
   text-align: left;
   margin: 16px 0;
   white-space: pre-wrap;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .modal-buttons {

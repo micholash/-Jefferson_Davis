@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <base target="_top">
   <meta charset="UTF-8">
-  <?!= include('Style'); ?>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>지도 위의 인문학</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -37,60 +39,7 @@
     </header>
 
     <div class="map-wrapper">
-      <svg id="worldMap" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
-        <!-- 배경 -->
-        <rect width="1000" height="500" fill="#cfe8f3"/>
-        <!-- 대륙 형태는 단순화된 사각/원형 블록으로 지역 마커 표시 -->
-        <!-- 지역 마커들 -->
-        <g class="region-marker" data-region="이집트 카이로">
-          <circle cx="540" cy="230" r="14"/>
-          <text x="540" y="210">카이로</text>
-        </g>
-        <g class="region-marker" data-region="그리스 아테네">
-          <circle cx="530" cy="170" r="14"/>
-          <text x="530" y="150">아테네</text>
-        </g>
-        <g class="region-marker" data-region="이탈리아 로마">
-          <circle cx="500" cy="155" r="14"/>
-          <text x="500" y="135">로마</text>
-        </g>
-        <g class="region-marker" data-region="대한민국 경주">
-          <circle cx="850" cy="180" r="14"/>
-          <text x="850" y="160">경주</text>
-        </g>
-        <g class="region-marker" data-region="중국 시안">
-          <circle cx="800" cy="190" r="14"/>
-          <text x="800" y="210">시안</text>
-        </g>
-        <g class="region-marker" data-region="인도 델리">
-          <circle cx="730" cy="240" r="14"/>
-          <text x="730" y="260">델리</text>
-        </g>
-        <g class="region-marker" data-region="프랑스 파리">
-          <circle cx="480" cy="135" r="14"/>
-          <text x="480" y="115">파리</text>
-        </g>
-        <g class="region-marker" data-region="영국 런던">
-          <circle cx="465" cy="120" r="14"/>
-          <text x="465" y="100">런던</text>
-        </g>
-        <g class="region-marker" data-region="멕시코 테오티우아칸">
-          <circle cx="180" cy="230" r="14"/>
-          <text x="180" y="250">멕시코</text>
-        </g>
-        <g class="region-marker" data-region="페루 마추픽추">
-          <circle cx="270" cy="350" r="14"/>
-          <text x="270" y="370">페루</text>
-        </g>
-        <g class="region-marker" data-region="튀르키예 이스탄불">
-          <circle cx="565" cy="155" r="14"/>
-          <text x="565" y="135">이스탄불</text>
-        </g>
-        <g class="region-marker" data-region="이라크 바그다드">
-          <circle cx="600" cy="200" r="14"/>
-          <text x="600" y="220">바그다드</text>
-        </g>
-      </svg>
+      <div id="leafletMap"></div>
     </div>
 
     <p class="hint">📍 지도 위의 마커를 클릭해 그 지역의 역사 이야기를 들어보세요!</p>
@@ -123,11 +72,14 @@
     <div id="visitedList" class="visited-list"></div>
   </div>
 
+  <!-- Leaflet -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-  <?!= include('Script'); ?>
+  <script src="script.js"></script>
 </body>
 </html>

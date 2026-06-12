@@ -1,5 +1,4 @@
-<style>
-  * {
+* {
     box-sizing: border-box;
     font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   }
@@ -124,37 +123,37 @@
     padding: 16px;
   }
 
-  #worldMap {
+  #leafletMap {
     width: 100%;
-    height: auto;
-    background: #aedff7;
+    height: 480px;
     border-radius: 12px;
     border: 1px solid #ccc;
+    z-index: 1;
   }
 
-  .region-marker circle {
-    fill: #e74c3c;
-    stroke: #fff;
-    stroke-width: 2;
+  .visited-pin {
+    filter: hue-rotate(90deg);
+  }
+
+  .leaflet-popup-content {
+    text-align: center;
+  }
+
+  .popup-region-name {
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #2980b9;
+  }
+
+  .popup-btn {
     cursor: pointer;
-    transition: r 0.15s, fill 0.15s;
-  }
-
-  .region-marker:hover circle {
-    r: 18;
-    fill: #c0392b;
-  }
-
-  .region-marker.visited circle {
-    fill: #27ae60;
-  }
-
-  .region-marker text {
-    font-size: 13px;
-    fill: #2c3e50;
-    text-anchor: middle;
-    pointer-events: none;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
     font-weight: 600;
+    background: #2980b9;
+    color: #fff;
   }
 
   .hint {
@@ -250,4 +249,3 @@
     color: #aaa;
     margin-top: 6px;
   }
-</style>

@@ -2,7 +2,7 @@
 // Apps Script 웹앱 URL
 // 배포 후 받은 URL로 교체하세요
 // =====================================================
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5YsOf8T0ehx-IhZ3D702lU53L20BzLCeS0d7OrjFVE0iZvqgFvFDvir7MdPkHezyfOw/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbze8Zx4BRhghm1vfwSthr6pGEtE3t-OC3l5QPpHqJKqXf4S28uPHDK6LyFFuXLaLBlA6g/exec";
 
 // =====================================================
 // Firebase 설정
